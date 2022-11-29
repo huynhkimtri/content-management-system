@@ -2,7 +2,7 @@
   "name": "content-management-system",
   "private": true,
   "version": "0.1.0",
-  "description": "A Strapi application",
+  "description": "A Content Management System (CMS) build by application",
   "scripts": {
     "develop": "strapi develop",
     "start": "strapi start",
