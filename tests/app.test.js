@@ -1,15 +1,15 @@
-const fs = require('fs');
-const { setupStrapi, cleanupStrapi } = require("./helpers/strapi");
-// require('./hello');
+const { setupStrapi, teardownStrapi } = require("./helpers/strapi");
 
-beforeAll(async () => {
-  await setupStrapi();
-});
+/**
+ * this code is called once before any test is called
+ * */
+beforeAll(setupStrapi);
 
-afterAll(async () => {
-  await cleanupStrapi();
-});
+/**
+ * this code is called once before all the tested are finished
+ * */
+afterAll(teardownStrapi);
 
-it("strapi is defined", () => {
-  expect(strapi).toBeDefined();
+it("strapi instance is defined", () => {
+  expect(global.strapiInstance).toBeDefined();
 });

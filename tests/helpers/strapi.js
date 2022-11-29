@@ -1,34 +1,26 @@
-const Strapi = require("@strapi/strapi");
+const strapi = require("@strapi/strapi");
 const fs = require("fs");
 
-let instance;
+const setupStrapi = async () => {
+  global.strapiInstance = await strapi().load();
+  global.strapiInstance.server.mount();
+  global.strapiServer = global.strapiInstance.server.app.callback();
+};
 
-async function setupStrapi() {
-  if (!instance) {
-    await Strapi().load();
-    instance = strapi;
-    
-    await instance.server.mount();
-  }
-  return instance;
-}
-
-async function cleanupStrapi() {
-  const dbSettings = strapi.config.get("database.connection");
-
-  //close server to release the db-file
-  await strapi.server.httpServer.close();
-
-  // close the connection to the database before deletion
-  await strapi.db.connection.destroy();
-
-  //delete test database after all tests have completed
-  if (dbSettings && dbSettings.connection && dbSettings.connection.filename) {
-    const tmpDbFile = dbSettings.connection.filename;
-    if (fs.existsSync(tmpDbFile)) {
-      fs.unlinkSync(tmpDbFile);
+/** this code is called after all the tests are finished */
+const teardownStrapi = () => {
+  global.strapiInstance.destroy().then(() => {
+    //delete test database after all tests
+    const dbSettings = global.strapiInstance.config.get(
+      "database.connections.default.settings"
+    );
+    if (dbSettings && dbSettings.filename) {
+      const tmpDbFile = `${__dirname}/../${dbSettings.filename}`;
+      if (fs.existsSync(tmpDbFile)) {
+        fs.unlinkSync(tmpDbFile);
+      }
     }
-  }
-}
+  });
+};
 
-module.exports = { setupStrapi, cleanupStrapi };
+module.exports = { setupStrapi, teardownStrapi };
